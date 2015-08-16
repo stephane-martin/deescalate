@@ -12,6 +12,13 @@ HARD_CODED_CAPS = [
     b'syslog', b'wake_alarm', b'block_suspend'
 ]
 
+SECURE_NOROOT = 1 << 0
+SECURE_NOROOT_LOCKED = 1 << 1
+SECURE_NO_SETUID_FIXUP = 1 << 2
+SECURE_NO_SETUID_FIXUP_LOCKED = 1 << 3
+SECURE_KEEP_CAPS = 1 << 4
+SECURE_KEEP_CAPS_LOCKED = 1 << 5
+
 nb_hard_coded = len(HARD_CODED_CAPS)
 
 SUPPORTED_CAPS = {}
@@ -192,8 +199,10 @@ cdef cap_flag_t string_to_flag(capset):
         else:
             raise ValueError()
     if isinstance(capset, unicode):
-        capset = capset.encode('ascii')
-    return <cap_flag_t> FLAGS[bytes(capset)]
+        return <cap_flag_t> FLAGS[capset.encode('ascii').lower().strip()]
+    if isinstance(capset, bytes):
+        return <cap_flag_t> FLAGS[capset.lower().strip()]
+    raise ValueError()
 
 cdef normalize_list_of_caps(list_of_caps):
     if list_of_caps is None:
@@ -259,6 +268,7 @@ cdef get_securebits():
     return res
 
 cdef set_noroot(locked=True):
+    global SECURE_NOROOT_LOCKED, SECURE_NOROOT
     current = get_securebits()
     modified = (current | SECURE_NOROOT_LOCKED | SECURE_NOROOT) if locked else (current | SECURE_NOROOT)
     res = int(prctl(PR_SET_SECUREBITS, <unsigned long> modified, 0, 0, 0))
@@ -266,6 +276,7 @@ cdef set_noroot(locked=True):
         raise RuntimeError("set_noroot failed")
 
 cdef set_keep_caps(locked=True):
+    global SECURE_KEEP_CAPS_LOCKED, SECURE_KEEP_CAPS
     current = get_securebits()
     modified = (current | SECURE_KEEP_CAPS_LOCKED | SECURE_KEEP_CAPS) if locked else (current | SECURE_KEEP_CAPS)
     res = int(prctl(PR_SET_SECUREBITS, <unsigned long> modified, 0, 0, 0))
@@ -273,6 +284,7 @@ cdef set_keep_caps(locked=True):
         raise RuntimeError("set_keep_caps failed")
 
 cdef set_no_setuid_fixup(locked=True):
+    global SECURE_NO_SETUID_FIXUP_LOCKED, SECURE_NO_SETUID_FIXUP
     current = get_securebits()
     modified = (current | SECURE_NO_SETUID_FIXUP_LOCKED | SECURE_NO_SETUID_FIXUP) if locked else (current | SECURE_NO_SETUID_FIXUP)
     res = int(prctl(PR_SET_SECUREBITS, <unsigned long> modified, 0, 0, 0))

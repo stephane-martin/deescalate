@@ -40,7 +40,7 @@ cdef extern from "sys/capability.h" nogil:
     int     cap_set_proc(cap_t)
     int     cap_get_bound(cap_value_t)
     int     cap_drop_bound(cap_value_t)
-    int     CAP_IS_SUPPORTED(cap)
+    int     CAP_IS_SUPPORTED(cap_value_t cap)
     cap_t   cap_from_text(const char *)
     char *  cap_to_text(cap_t, ssize_t *)
     int     cap_from_name(const char *, cap_value_t *)
@@ -59,14 +59,7 @@ cdef class Capabilities(object):
     cpdef drop_from_bounding_set(self, caps_to_drop)
     cpdef limit_bounding_set(self, caps_to_keep)
 
-cpdef lockdown_account(uid=None, gid=None, caps_to_keep=None)
+cpdef lockdown_account(uid=?, gid=?, caps_to_keep=?)
 
 
-
-SECURE_NOROOT = 1 << 0
-SECURE_NOROOT_LOCKED = 1 << 1
-SECURE_NO_SETUID_FIXUP = 1 << 2
-SECURE_NO_SETUID_FIXUP_LOCKED = 1 << 3
-SECURE_KEEP_CAPS = 1 << 4
-SECURE_KEEP_CAPS_LOCKED = 1 << 5
 
