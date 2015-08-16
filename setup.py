@@ -22,8 +22,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     kernel = [int(x) for x in os.uname()[2].split('.')]
-    if kernel < [2, 6, 37]:
-        sys.stderr.write("This module requires linux 2.6.37 or newer\n")
+    if kernel < [3, 5]:
+        sys.stderr.write("This module requires linux kernel 3.5 or newer\n")
         sys.exit(1)
 
 
