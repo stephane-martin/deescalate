@@ -77,7 +77,7 @@ cdef class Capabilities(object):
             return self.get_caps_in_set(CAP_INHERITABLE)
 
     cpdef get_caps_in_set(self, capset):
-        cdef cap_flag_t flag = string_to_flag(capset)
+        cdef cap_flag_t flag = _string_to_flag(capset)
         cdef cap_flag_value_t flag_value
         cdef int res
         results = set()
@@ -104,68 +104,26 @@ cdef class Capabilities(object):
         return s
 
     cpdef limit_caps_in_one_set(self, caps_to_keep, capset):
-        caps_to_keep = set(normalize_list_of_caps(caps_to_keep))
+        caps_to_keep = set(_normalize_list_of_caps(caps_to_keep))
         caps_to_drop = set(SUPPORTED_CAPS_VALUES).difference(caps_to_keep)
-        self.drop_caps_from_one_set(caps_to_drop, capset)
+        return self.drop_caps_from_one_set(caps_to_drop, capset)
 
     cpdef drop_caps_from_one_set(self, caps_to_drop, capset):
         cdef int res
-        cdef cap_flag_t flag = string_to_flag(capset)
-        caps_to_drop = set(normalize_list_of_caps(caps_to_drop))
+        caps_to_drop = set(_normalize_list_of_caps(caps_to_drop))
         current_caps = set([cap[0] for cap in self.get_caps_in_set(capset)])
         caps_to_drop = caps_to_drop.intersection(current_caps)
-        if len(caps_to_drop) == 0:
-            return 0
-        cdef cap_value_t* norm_caps_to_drop = <cap_value_t*> malloc(len(caps_to_drop) * sizeof(cap_value_t))
-        cdef cap_t current
-        try:
-            current = cap_get_proc()
-            try:
-                for idx, i in enumerate(caps_to_drop):
-                    norm_caps_to_drop[idx] = <cap_value_t> i
-                res = cap_set_flag(current, flag, len(caps_to_drop), norm_caps_to_drop, CAP_CLEAR)
-                if res == -1:
-                    raise RuntimeError("error executing cap_set_flag")
-                res = cap_set_proc(current)
-                if res == -1:
-                    raise RuntimeError("error executing cap_set_proc")
-            finally:
-                if <void*> current:
-                    cap_free(<void*> current)
-        finally:
-            free(<void*> norm_caps_to_drop)
+        _modify_capset(capset, caps_to_drop, CAP_CLEAR)
         return len(caps_to_drop)
-
 
     cpdef add_caps_to_one_set(self, caps_to_add, capset):
         cdef int res
-        cdef cap_flag_t flag = string_to_flag(capset)
-        caps_to_add = set(normalize_list_of_caps(caps_to_add))
+        caps_to_add = set(_normalize_list_of_caps(caps_to_add))
         current_caps = set([cap[0] for cap in self.get_caps_in_set(capset)])
         caps_to_add = caps_to_add.intersection(set(SUPPORTED_CAPS_VALUES))
         caps_to_add = caps_to_add.difference(current_caps)
-        if len(caps_to_add) == 0:
-            return 0
-        cdef cap_value_t* norm_caps_to_add = <cap_value_t*> malloc(len(caps_to_add) * sizeof(cap_value_t))
-        cdef cap_t current
-        try:
-            current = cap_get_proc()
-            try:
-                for idx, i in enumerate(caps_to_add):
-                    norm_caps_to_add[idx] = <cap_value_t> i
-                res = cap_set_flag(current, flag, len(caps_to_add), norm_caps_to_add, CAP_SET)
-                if res == -1:
-                    raise RuntimeError("error executing cap_set_flag")
-                res = cap_set_proc(current)
-                if res == -1:
-                    raise RuntimeError("error executing cap_set_proc")
-            finally:
-                if <void*> current:
-                    cap_free(<void*> current)
-        finally:
-            free(<void*> norm_caps_to_add)
+        _modify_capset(capset, caps_to_add, CAP_SET)
         return len(caps_to_add)
-
 
     cpdef drop_caps_from_all_sets(self, caps_to_drop):
         self.drop_caps_from_one_set(caps_to_drop, CAP_INHERITABLE)
@@ -178,7 +136,7 @@ cdef class Capabilities(object):
         self.limit_caps_in_one_set(caps_to_keep, CAP_PERMITTED)
 
     cpdef drop_from_bounding_set(self, caps_to_drop):
-        caps_to_drop = set(normalize_list_of_caps(caps_to_drop))
+        caps_to_drop = set(_normalize_list_of_caps(caps_to_drop))
         cdef int res
         for i in caps_to_drop:
             res = cap_drop_bound(<cap_value_t> i)
@@ -186,32 +144,11 @@ cdef class Capabilities(object):
                 raise RuntimeError("error executing cap_drop_bound(%s)" % i)
 
     cpdef limit_bounding_set(self, caps_to_keep):
-        caps_to_keep = set(normalize_list_of_caps(caps_to_keep))
+        caps_to_keep = set(_normalize_list_of_caps(caps_to_keep))
         current_bounding = set([cap[0] for cap in self.get_bounding_set()])
         caps_to_drop = current_bounding.difference(caps_to_keep)
         self.drop_from_bounding_set(caps_to_drop)
 
-
-cdef cap_flag_t string_to_flag(capset):
-    if isinstance(capset, int):
-        if <cap_flag_t>capset == CAP_EFFECTIVE or <cap_flag_t>capset == CAP_PERMITTED or <cap_flag_t>capset == CAP_INHERITABLE:
-            return <cap_flag_t> capset
-        else:
-            raise ValueError()
-    if isinstance(capset, unicode):
-        return <cap_flag_t> FLAGS[capset.encode('ascii').lower().strip()]
-    if isinstance(capset, bytes):
-        return <cap_flag_t> FLAGS[capset.lower().strip()]
-    raise ValueError()
-
-cdef normalize_list_of_caps(list_of_caps):
-    if list_of_caps is None:
-        return []
-    if isinstance(list_of_caps, basestring):
-        list_of_caps = [list_of_caps]
-    list_of_caps = [cap.encode('ascii') if isinstance(cap, unicode) else cap for cap in list_of_caps]
-    list_of_caps = [cap.lower().strip() if isinstance(cap, bytes) else cap for cap in list_of_caps]
-    return [SUPPORTED_CAPS[cap] if isinstance(cap, bytes) else cap for cap in list_of_caps]
 
 capabilities = Capabilities()
 
@@ -236,7 +173,7 @@ cpdef lockdown_account(uid=None, gid=None, caps_to_keep=None):
             else:
                 capabilities.add_caps_to_one_set(b"setgid", CAP_EFFECTIVE)
 
-    caps_to_keep = set(normalize_list_of_caps(caps_to_keep))
+    caps_to_keep = set(_normalize_list_of_caps(caps_to_keep))
 
     set_noroot()
     set_keep_caps()
@@ -291,4 +228,49 @@ cdef set_no_setuid_fixup(locked=True):
     if res == -1:
         raise RuntimeError("set_no_setuid_fixup failed")
 
+
+cdef _modify_capset(capset, caps_to_modify, cap_flag_value_t flag_value=CAP_CLEAR):
+    if len(caps_to_modify) == 0:
+        return 0
+    cdef cap_flag_t flag = _string_to_flag(capset)
+    cdef cap_value_t* norm_caps_to_modify = <cap_value_t*> malloc(len(caps_to_modify) * sizeof(cap_value_t))
+    cdef cap_t current
+    try:
+        current = cap_get_proc()
+        try:
+            for idx, i in enumerate(caps_to_modify):
+                norm_caps_to_modify[idx] = <cap_value_t> i
+            res = cap_set_flag(current, flag, len(caps_to_modify), norm_caps_to_modify, flag_value)
+            if res == -1:
+                raise RuntimeError("error executing cap_set_flag")
+            res = cap_set_proc(current)
+            if res == -1:
+                raise RuntimeError("error executing cap_set_proc")
+        finally:
+            if <void*> current:
+                cap_free(<void*> current)
+    finally:
+        free(<void*> norm_caps_to_modify)
+
+
+cdef cap_flag_t _string_to_flag(capset):
+    if isinstance(capset, int):
+        if <cap_flag_t>capset == CAP_EFFECTIVE or <cap_flag_t>capset == CAP_PERMITTED or <cap_flag_t>capset == CAP_INHERITABLE:
+            return <cap_flag_t> capset
+        else:
+            raise ValueError()
+    if isinstance(capset, unicode):
+        return <cap_flag_t> FLAGS[capset.encode('ascii').lower().strip()]
+    if isinstance(capset, bytes):
+        return <cap_flag_t> FLAGS[capset.lower().strip()]
+    raise ValueError()
+
+cdef _normalize_list_of_caps(list_of_caps):
+    if list_of_caps is None:
+        return []
+    if isinstance(list_of_caps, basestring):
+        list_of_caps = [list_of_caps]
+    list_of_caps = [cap.encode('ascii') if isinstance(cap, unicode) else cap for cap in list_of_caps]
+    list_of_caps = [cap.lower().strip() if isinstance(cap, bytes) else cap for cap in list_of_caps]
+    return [SUPPORTED_CAPS[cap] if isinstance(cap, bytes) else cap for cap in list_of_caps]
 

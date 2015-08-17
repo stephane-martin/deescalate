@@ -26,7 +26,6 @@ if __name__ == "__main__":
         sys.stderr.write("This module requires linux kernel 3.5 or newer\n")
         sys.exit(1)
 
-
     with open('README.rst') as readme_file:
         readme = readme_file.read()
 
@@ -43,7 +42,6 @@ if __name__ == "__main__":
     test_requirements = []
     extensions = []
     if not on_rtd:
-        # utility module to make python memoryviews from char* buffers
         deescalate_extension = Extension(
             name="deescalate._deescalate",
             sources=["deescalate/_deescalate.pyx"],
@@ -66,7 +64,7 @@ if __name__ == "__main__":
             'setuptools_git', 'setuptools', 'twine', 'wheel', 'cython'
         ],
         include_package_data=True,
-        exclude_package_data={'': ['*.c', '*.cpp', '*.h']},
+        exclude_package_data={'': ['*.c', '*.cpp', '*.h', '*.html', '*.txt']},
         install_requires=requirements,
         license="LGPLv3+",
         zip_safe=False,
