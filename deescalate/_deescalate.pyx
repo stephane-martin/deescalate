@@ -182,7 +182,7 @@ cpdef lockdown_account(uid=None, gid=None, caps_to_keep=None):
     set_no_setuid_fixup()
     if uid is not None:
         os.setgid(_normalize_gid(uid, gid))
-        os.setuid(_normalize_uid(gid))
+        os.setuid(_normalize_uid(uid))
 
 
     inheritable_caps = set([cap[0] for cap in capabilities.inheritable])
