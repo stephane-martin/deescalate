@@ -80,7 +80,9 @@ if __name__ == "__main__":
             'Operating System :: POSIX :: Linux'
         ],
         entry_points={
-            'console_scripts': []
+            'console_scripts': [
+                'deescalate = deescalate.script:main'
+            ]
         },
 
         data_files=data_files,
