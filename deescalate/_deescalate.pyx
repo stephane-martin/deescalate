@@ -2,6 +2,8 @@
 
 from libc.stdlib cimport malloc, free
 import os
+import pwd
+import grp
 
 HARD_CODED_CAPS = [
     b'chown', b'dac_override', b'dac_read_search', b'fowner', b'fsetid', b'kill', b'setgid',
@@ -178,10 +180,10 @@ cpdef lockdown_account(uid=None, gid=None, caps_to_keep=None):
     set_noroot()
     set_keep_caps()
     set_no_setuid_fixup()
-    if gid is not None:
-        os.setgid(gid)
     if uid is not None:
-        os.setuid(uid)
+        os.setgid(_normalize_gid(uid, gid))
+        os.setuid(_normalize_uid(gid))
+
 
     inheritable_caps = set([cap[0] for cap in capabilities.inheritable])
     caps_to_add_to_inheritable = caps_to_keep.difference(inheritable_caps)
@@ -274,3 +276,13 @@ cdef _normalize_list_of_caps(list_of_caps):
     list_of_caps = [cap.lower().strip() if isinstance(cap, bytes) else cap for cap in list_of_caps]
     return [SUPPORTED_CAPS[cap] if isinstance(cap, bytes) else cap for cap in list_of_caps]
 
+cdef _normalize_uid(uid):
+    return uid if isinstance(uid, int) else pwd.getpwnam(bytes(uid)).pw_uid
+
+cdef _normalize_gid(uid, gid):
+    if gid is not None:
+        return gid if isinstance(gid, int) else grp.getgrnam(bytes(gid)).gr_gid
+    elif isinstance(uid, int):
+        return pwd.getpwuid(uid).pw_gid
+    else:
+        return pwd.getpwnam(bytes(uid)).pw_gid
