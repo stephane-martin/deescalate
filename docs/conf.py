@@ -9,6 +9,13 @@ import logging
 os.environ['SPHINX_BUILD'] = "True"
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
+if not on_rtd:
+    try:
+        import deescalate._deescalate
+    except ImportError:
+        sys.path.insert(0, os.path.abspath('..'))
+        import deescalate._deescalate
+
 import sphinx_readable_theme
 project = u'deescalate'
 copyright = u'2015, Stephane Martin'
