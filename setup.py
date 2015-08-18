@@ -5,19 +5,17 @@ from setuptools import setup, find_packages, Extension
 import os
 import platform
 import sys
-from distutils.log import info
 import subprocess
 from os.path import dirname, abspath, join, commonprefix, exists
 
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 here = abspath(dirname(__file__))
-only_doc_build = False
+dummy = False
 
 if __name__ == "__main__":
-    if not sys.platform.startswith('linux'):
-        sys.stderr.write("This module only works on linux\n")
-        sys.stderr.write("Just compiling dummy module for documentation building\n")
-        only_doc_build = True
+    if not platform.system().lower().startswith('linux'):
+        sys.stderr.write("\nThis module only works on linux. Just compiling dummy module.\n\n")
+        dummy = True
     else:
         kernel = [int(x) for x in os.uname()[2].split('.')]
         if kernel < [3, 5]:
@@ -47,7 +45,7 @@ if __name__ == "__main__":
         deescalate_extension = Extension(
             name="deescalate._deescalate",
             sources=["deescalate/_deescalate.pyx"],
-            libraries=["cap"] if not only_doc_build else []
+            libraries=["cap"] if not dummy else []
         )
         extensions.append(deescalate_extension)
 

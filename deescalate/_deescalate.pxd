@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 IF UNAME_SYSNAME == "Linux":
-
     cdef extern from "sys/types.h" nogil:
         ctypedef unsigned int pid_t
 
@@ -48,24 +47,20 @@ IF UNAME_SYSNAME == "Linux":
         char *  cap_to_name(cap_value_t)
         int     cap_compare(cap_t, cap_t)
 
+    cdef class C_CapabilitySet(object):
+        cdef cap_flag_t flag
+        cpdef _modify(self, caps_to_modify, flag_value)
+
+    cdef class C_BoundingSet(object):
+        cpdef _remove_one_cap(self, int cap)
+
 ELSE:
-    ctypedef enum cap_flag_value_t:
-        CAP_CLEAR,
-        CAP_SET
-    ctypedef enum cap_flag_t:
-        CAP_EFFECTIVE,
-        CAP_PERMITTED,
-        CAP_INHERITABLE
-    ctypedef int cap_value_t
+    cdef class C_CapabilitySet(object):
+        cdef int flag
+        cpdef _modify(self, caps_to_modify, flag_value)
+
+    cdef class C_BoundingSet(object):
+        cpdef _remove_one_cap(self, int cap)
 
 
-
-cpdef lockdown_account(uid=?, gid=?, caps_to_keep=?)
-cpdef get_securebits()
-cpdef set_noroot(locked=?)
-cpdef set_keep_caps(locked=?)
-cpdef set_no_setuid_fixup(locked=?)
-
-
-
-
+cpdef py_prctl(option, arg2, arg3, arg4, arg5)

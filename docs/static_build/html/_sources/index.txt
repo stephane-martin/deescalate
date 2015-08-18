@@ -11,6 +11,8 @@ deescalate
 
    installation
    overview
+   api
+   wrapper
    authors
    history
 

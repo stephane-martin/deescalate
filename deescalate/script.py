@@ -7,7 +7,7 @@ import grp
 import shlex
 import os
 
-from . import lockdown_account, SUPPORTED_CAPS_NAMES
+from . import lockdown_account, C
 
 parser = argparse.ArgumentParser(
     usage="Deescalade current privileges to a given list of capabilities and run a command"
@@ -21,7 +21,7 @@ parser.add_argument('--no-set-home', action='store_true', help="do not set the H
 parser.add_argument("command", help="run the specified command")
 args = parser.parse_args()
 
-supported_caps = set(SUPPORTED_CAPS_NAMES)
+supported_caps = C.SUPPORTED_CAPS_NAMES
 capabilities = set([cap.strip().lower() for cap in args.capabilities.split(',')]) if args.capabilities else set()
 user, group, command = args.user, args.group, args.command.strip()
 

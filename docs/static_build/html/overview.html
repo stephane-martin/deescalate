@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="deescalate documentation" href="index.html" />
-    <link rel="next" title="Credits" href="authors.html" />
+    <link rel="next" title="Deescalate API" href="api.html" />
     <link rel="prev" title="Installation" href="installation.html" />
    
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
@@ -41,7 +41,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="authors.html" title="Credits"
+          <a href="api.html" title="Deescalate API"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="installation.html" title="Installation"
@@ -57,82 +57,6 @@
             
   <div class="section" id="overview">
 <h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
-<dl class="function">
-<dt id="deescalate._deescalate.lockdown_account">
-<code class="descname">lockdown_account</code><span class="sig-paren">(</span><em>uid=None</em>, <em>gid=None</em>, <em>caps_to_keep=None</em><span class="sig-paren">)</span><a class="headerlink" href="#deescalate._deescalate.lockdown_account" title="Permalink to this definition">¶</a></dt>
-<dd><p>Deescalate the privileges of the running process</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>uid</strong> -- switch to this UID (optional)</li>
-<li><strong>gid</strong> -- switch to this GID (optional)</li>
-<li><strong>caps_to_keep</strong> -- a list of capabilities to keep</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">Raises RuntimeError:</th></tr>
-<tr class="field-even field"><td>&nbsp;</td><td class="field-body"><p class="first last">if some operation fails</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="deescalate._deescalate.get_securebits">
-<code class="descname">get_securebits</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#deescalate._deescalate.get_securebits" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the currently defined secure bits</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(the securebits as an int, a dict of securebits)</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="deescalate._deescalate.set_noroot">
-<code class="descname">set_noroot</code><span class="sig-paren">(</span><em>locked=True</em><span class="sig-paren">)</span><a class="headerlink" href="#deescalate._deescalate.set_noroot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the <cite>SECBIT_NOROOT</cite> securebit.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>locked</strong> -- if True, also set <cite>SECBIT_NOROOT_LOCKED</cite></td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">Raises RuntimeError:</th></tr>
-<tr class="field-even field"><td>&nbsp;</td><td class="field-body">if operation fails</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="deescalate._deescalate.set_keep_caps">
-<code class="descname">set_keep_caps</code><span class="sig-paren">(</span><em>locked=True</em><span class="sig-paren">)</span><a class="headerlink" href="#deescalate._deescalate.set_keep_caps" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the <cite>SECBIT_KEEP_CAPS</cite> securebit.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>locked</strong> -- if True, also set <cite>SECBIT_KEEP_CAPS_LOCKED</cite></td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">Raises RuntimeError:</th></tr>
-<tr class="field-even field"><td>&nbsp;</td><td class="field-body">if operation fails</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="deescalate._deescalate.set_no_setuid_fixup">
-<code class="descname">set_no_setuid_fixup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#deescalate._deescalate.set_no_setuid_fixup" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </div>
 
 
@@ -145,6 +69,8 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Deescalate API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wrapper.html">Wrapper script</a></li>
 <li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
 <li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
 </ul>
@@ -152,7 +78,7 @@
 <ul>
   <li><a href="index.html">Documentation index</a><ul>
       <li>Previous: <a href="installation.html" title="previous chapter">Installation</a></li>
-      <li>Next: <a href="authors.html" title="next chapter">Credits</a></li>
+      <li>Next: <a href="api.html" title="next chapter">Deescalate API</a></li>
   </ul></li>
 </ul>
 <div id="searchbox" style="display: none" role="search">

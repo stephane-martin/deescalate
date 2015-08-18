@@ -2,8 +2,3 @@
 Overview
 ========
 
-.. autofunction:: deescalate._deescalate.lockdown_account
-.. autofunction:: deescalate._deescalate.get_securebits
-.. autofunction:: deescalate._deescalate.set_noroot
-.. autofunction:: deescalate._deescalate.set_keep_caps
-.. autofunction:: deescalate._deescalate.set_no_setuid_fixup
