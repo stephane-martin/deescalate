@@ -1,0 +1,434 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Deescalate API &mdash; deescalate documentation</title>
+    
+    <link rel="stylesheet" href="_static/readable.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="deescalate documentation" href="index.html" />
+    <link rel="next" title="Wrapper script" href="wrapper.html" />
+    <link rel="prev" title="Installation" href="installation.html" />
+   
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">
+  
+  
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="wrapper.html" title="Wrapper script"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">deescalate</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="deescalate-api">
+<h1>Deescalate API<a class="headerlink" href="#deescalate-api" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="deescalate.lockdown_account">
+<code class="descname">lockdown_account</code><span class="sig-paren">(</span><em>uid=None</em>, <em>gid=None</em>, <em>caps_to_keep=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/deescalate/main.html#lockdown_account"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#deescalate.lockdown_account" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deescalate the privileges of the running process.</p>
+<p><cite>lockdown_account</cite> will:</p>
+<ul class="simple">
+<li>set the secure bits <cite>noroot</cite>, <cite>keep_caps</cite>, <cite>no_setuid_fixup</cite> and their locked companions</li>
+<li>perform a <cite>setgid</cite> and a <cite>setuid</cite></li>
+<li>restrict the 3 cap sets and the bounding set to the list given in <cite>caps_to_keep</cite></li>
+<li>set <cite>no_new_privs</cite></li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>uid</strong> (<em>int or string, optional</em>) --
+switch to this UID</li>
+<li><strong>gid</strong> (<em>int or string, optional</em>) --
+switch to this GID</li>
+<li><strong>caps_to_keep</strong> (<em>list of bytes, optional</em>) --
+a list of capabilities to keep</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal"><span class="pre">RuntimeError</span></code> --
+if some capability operation fails</li>
+<li><code class="xref py py-exc docutils literal"><span class="pre">OSError</span></code> --
+operation not permitted</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">When not on Linux, only setgid and setuid will be performed</p>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">lockdown_account</span><span class="p">(</span><span class="s">&#39;www-data&#39;</span><span class="p">,</span> <span class="s">&#39;www-data&#39;</span><span class="p">,</span> <span class="s">&#39;net_bind_service&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lockdown_account</span><span class="p">(</span><span class="s">&#39;scapy&#39;</span><span class="p">,</span> <span class="s">&#39;scapy&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;net_admin&#39;</span><span class="p">,</span> <span class="s">&#39;net_raw&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="deescalate.get_securebits">
+<code class="descname">get_securebits</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/deescalate/main.html#get_securebits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#deescalate.get_securebits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the currently defined secure bits</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>2uple (the securebits as an int, a dict of securebits)</em></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="deescalate.set_noroot">
+<code class="descname">set_noroot</code><span class="sig-paren">(</span><em>locked=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/deescalate/main.html#set_noroot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#deescalate.set_noroot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the <cite>SECBIT_NOROOT</cite> securebit.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>locked</strong> (<em>bool</em>) --
+if True, also set <cite>SECBIT_NOROOT_LOCKED</cite></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">RuntimeError</span></code> --
+if operation fails</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="deescalate.set_keep_caps">
+<code class="descname">set_keep_caps</code><span class="sig-paren">(</span><em>locked=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/deescalate/main.html#set_keep_caps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#deescalate.set_keep_caps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the <cite>SECBIT_KEEP_CAPS</cite> securebit.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>locked</strong> (<em>bool</em>) --
+if True, also set <cite>SECBIT_KEEP_CAPS_LOCKED</cite></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">RuntimeError</span></code> --
+if operation fails</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="deescalate.set_no_setuid_fixup">
+<code class="descname">set_no_setuid_fixup</code><span class="sig-paren">(</span><em>locked=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/deescalate/main.html#set_no_setuid_fixup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#deescalate.set_no_setuid_fixup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the <cite>SECBIT_NO_SETUID_FIXUP</cite> securebit.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>locked</strong> (<em>bool</em>) --
+if True, also set <cite>SECBIT_NO_SETUID_FIXUP_LOCKED</cite></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">RuntimeError</span></code> --
+if operation fails</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="deescalate.set_no_new_privs">
+<code class="descname">set_no_new_privs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/deescalate/main.html#set_no_new_privs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#deescalate.set_no_new_privs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set <cite>no_new_privs</cite>.</p>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li>With <cite>no_new_privs</cite> set, <cite>execve</cite> promises not to grant the privilege to do anything that could not have been
+done without the <cite>execve</cite> call.</li>
+<li>See <a class="reference external" href="http://man7.org/linux/man-pages/man2/prctl.2.html">prctl manual page</a></li>
+</ul>
+</dd></dl>
+
+</div>
+<div class="section" id="capability-sets">
+<h2>Capability sets<a class="headerlink" href="#capability-sets" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="deescalate.CapabilitySet">
+<em class="property">class </em><code class="descname">CapabilitySet</code><span class="sig-paren">(</span><em>capset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/deescalate/main.html#CapabilitySet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#deescalate.CapabilitySet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">deescalate._deescalate.C_CapabilitySet</span></code></p>
+<p>Represent a set of capabilities.</p>
+<p class="rubric">Notes</p>
+<ul>
+<li><p class="first">Usually a CapabilitySet is used directly from one of its instance object (effective, permitted, inheritable).</p>
+</li>
+<li><p class="first">A CapabilitySet is iterable, so to get the capabilities it countains:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nb">set</span><span class="p">(</span><span class="n">effective</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">To check if a capability is in the set:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">b</span><span class="s">&#39;net_admin&#39;</span> <span class="ow">in</span> <span class="n">effective</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Arithmetic operators can be used to add/remove capabilities:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">effective</span> <span class="o">-=</span> <span class="n">b</span><span class="s">&#39;net_admin&#39;</span>
+<span class="n">permitted</span> <span class="o">+=</span> <span class="n">b</span><span class="s">&#39;net_raw&#39;</span>
+<span class="n">inheritable</span> <span class="o">+=</span> <span class="n">b</span><span class="s">&#39;setuid, setgid&#39;</span>
+<span class="n">inheritable</span> <span class="o">-=</span> <span class="p">[</span><span class="n">b</span><span class="s">&#39;sys_chroot&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;sys_ptrace&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><a class="reference external" href="http://man7.org/linux/man-pages/man7/capabilities.7.html">Capabilities manual page</a></li>
+</ul>
+<dl class="classmethod">
+<dt id="deescalate.CapabilitySet.get_instance">
+<em class="property">classmethod </em><code class="descname">get_instance</code><span class="sig-paren">(</span><em>capset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/deescalate/main.html#CapabilitySet.get_instance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#deescalate.CapabilitySet.get_instance" title="Permalink to this definition">¶</a></dt>
+<dd><p>CapabilitySet factory (class method).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>capset</strong> (<em>int or string</em>) --
+which capability set to deal with (&quot;effective&quot;, &quot;permitted&quot; or &quot;inheritable&quot;)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="deescalate.CapabilitySet.remove_all_except">
+<code class="descname">remove_all_except</code><span class="sig-paren">(</span><em>caps_to_keep</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/deescalate/main.html#CapabilitySet.remove_all_except"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#deescalate.CapabilitySet.remove_all_except" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove every capability from the set, except the ones given in <cite>caps_to_keep</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>caps_to_keep</strong> (<em>bytes or list of bytes</em>) --
+Do not drop these capabilities</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="deescalate.BoundingSet">
+<em class="property">class </em><code class="descname">BoundingSet</code><a class="reference internal" href="_modules/deescalate/main.html#BoundingSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#deescalate.BoundingSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">deescalate._deescalate.C_BoundingSet</span></code></p>
+<p>Represents the bounding capability set.</p>
+<p class="rubric">Notes</p>
+<ul>
+<li><p class="first">BoundindSet is iterable:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">list_of_caps</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">bounding_set</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">To check if a capability is in the bounding set:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">b</span><span class="s">&#39;net_admin&#39;</span> <span class="ow">in</span> <span class="n">bounding_set</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">The BoundingSet just supports removing some capabilities it countains. Use:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">bounding_set</span> <span class="o">-=</span> <span class="n">b</span><span class="s">&#39;net_admin,mac_override&#39;</span>
+<span class="n">bounding_set</span> <span class="o">-=</span> <span class="p">[</span><span class="n">b</span><span class="s">&#39;syslog&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;wake_alarm&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<dl class="classmethod">
+<dt id="deescalate.BoundingSet.get_instance">
+<em class="property">classmethod </em><code class="descname">get_instance</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/deescalate/main.html#BoundingSet.get_instance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#deescalate.BoundingSet.get_instance" title="Permalink to this definition">¶</a></dt>
+<dd><p>BoundingSet factory (class method).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="data">
+<dt id="deescalate.permitted">
+<code class="descname">permitted</code><em class="property"> = &lt;deescalate.main.CapabilitySet object&gt;</em><a class="headerlink" href="#deescalate.permitted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Permitted capability set</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="deescalate.effective">
+<code class="descname">effective</code><em class="property"> = &lt;deescalate.main.CapabilitySet object&gt;</em><a class="headerlink" href="#deescalate.effective" title="Permalink to this definition">¶</a></dt>
+<dd><p>Effective capability set</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="deescalate.inheritable">
+<code class="descname">inheritable</code><em class="property"> = &lt;deescalate.main.CapabilitySet object&gt;</em><a class="headerlink" href="#deescalate.inheritable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inheritable capability set</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="deescalate.bounding_set">
+<code class="descname">bounding_set</code><em class="property"> = &lt;deescalate.main.BoundingSet object&gt;</em><a class="headerlink" href="#deescalate.bounding_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Capability bounding set</p>
+</dd></dl>
+
+</div>
+<div class="section" id="constants">
+<h2>Constants<a class="headerlink" href="#constants" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="deescalate.C">
+<em class="property">class </em><code class="descname">C</code><a class="reference internal" href="_modules/deescalate/constants.html#C"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#deescalate.C" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Gather the various constants used by deescalate.</p>
+<dl class="attribute">
+<dt id="deescalate.C.HARD_CODED_CAPS">
+<code class="descname">HARD_CODED_CAPS</code><em class="property"> = ['chown', 'dac_override', 'dac_read_search', 'fowner', 'fsetid', 'kill', 'setgid', 'setuid', 'setpcap', 'linux_immutable', 'net_bind_service', 'net_broadcast', 'net_admin', 'net_raw', 'ipc_lock', 'ipc_owner', 'sys_module', 'sys_rawio', 'sys_chroot', 'sys_ptrace', 'sys_pacct', 'sys_admin', 'sys_boot', 'sys_nice', 'sys_resource', 'sys_time', 'sys_tty_config', 'mknod', 'lease', 'audit_write', 'audit_control', 'setfcap', 'mac_override', 'mac_admin', 'syslog', 'wake_alarm', 'block_suspend']</em><a class="headerlink" href="#deescalate.C.HARD_CODED_CAPS" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of usual capabilities on Linux</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="deescalate.C.NB_HARD_CODED">
+<code class="descname">NB_HARD_CODED</code><em class="property"> = 37</em><a class="headerlink" href="#deescalate.C.NB_HARD_CODED" title="Permalink to this definition">¶</a></dt>
+<dd><p>number of caps in HARD_CODED_CAPS</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="deescalate.C.SECBIT_KEEP_CAPS">
+<code class="descname">SECBIT_KEEP_CAPS</code><em class="property"> = 16</em><a class="headerlink" href="#deescalate.C.SECBIT_KEEP_CAPS" title="Permalink to this definition">¶</a></dt>
+<dd><p>SECBIT_KEEP_CAPS securebit</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="deescalate.C.SECBIT_KEEP_CAPS_LOCKED">
+<code class="descname">SECBIT_KEEP_CAPS_LOCKED</code><em class="property"> = 32</em><a class="headerlink" href="#deescalate.C.SECBIT_KEEP_CAPS_LOCKED" title="Permalink to this definition">¶</a></dt>
+<dd><p>SECBIT_KEEP_CAPS_LOCKED securebit</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="deescalate.C.SECBIT_NOROOT">
+<code class="descname">SECBIT_NOROOT</code><em class="property"> = 1</em><a class="headerlink" href="#deescalate.C.SECBIT_NOROOT" title="Permalink to this definition">¶</a></dt>
+<dd><p>NOROOT securebit</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="deescalate.C.SECBIT_NOROOT_LOCKED">
+<code class="descname">SECBIT_NOROOT_LOCKED</code><em class="property"> = 2</em><a class="headerlink" href="#deescalate.C.SECBIT_NOROOT_LOCKED" title="Permalink to this definition">¶</a></dt>
+<dd><p>NOROOT_LOCKED securebit</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="deescalate.C.SECBIT_NO_SETUID_FIXUP">
+<code class="descname">SECBIT_NO_SETUID_FIXUP</code><em class="property"> = 4</em><a class="headerlink" href="#deescalate.C.SECBIT_NO_SETUID_FIXUP" title="Permalink to this definition">¶</a></dt>
+<dd><p>NO_SETUID_FIXUP securebit</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="deescalate.C.SECBIT_NO_SETUID_FIXUP_LOCKED">
+<code class="descname">SECBIT_NO_SETUID_FIXUP_LOCKED</code><em class="property"> = 8</em><a class="headerlink" href="#deescalate.C.SECBIT_NO_SETUID_FIXUP_LOCKED" title="Permalink to this definition">¶</a></dt>
+<dd><p>NO_SETUID_FIXUP_LOCKED securebit</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="deescalate.C.SUPPORTED_CAPS">
+<code class="descname">SUPPORTED_CAPS</code><em class="property"> = {}</em><a class="headerlink" href="#deescalate.C.SUPPORTED_CAPS" title="Permalink to this definition">¶</a></dt>
+<dd><p>capabilities supported by the running platform</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="deescalate.C.UNSUPPORTED_CAPS">
+<code class="descname">UNSUPPORTED_CAPS</code><em class="property"> = ['chown', 'dac_override', 'dac_read_search', 'fowner', 'fsetid', 'kill', 'setgid', 'setuid', 'setpcap', 'linux_immutable', 'net_bind_service', 'net_broadcast', 'net_admin', 'net_raw', 'ipc_lock', 'ipc_owner', 'sys_module', 'sys_rawio', 'sys_chroot', 'sys_ptrace', 'sys_pacct', 'sys_admin', 'sys_boot', 'sys_nice', 'sys_resource', 'sys_time', 'sys_tty_config', 'mknod', 'lease', 'audit_write', 'audit_control', 'setfcap', 'mac_override', 'mac_admin', 'syslog', 'wake_alarm', 'block_suspend']</em><a class="headerlink" href="#deescalate.C.UNSUPPORTED_CAPS" title="Permalink to this definition">¶</a></dt>
+<dd><p>capabilities not supported by the running platform</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Deescalate API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#capability-sets">Capability sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#constants">Constants</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="wrapper.html">Wrapper script</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation index</a><ul>
+      <li>Previous: <a href="installation.html" title="previous chapter">Installation</a></li>
+      <li>Next: <a href="wrapper.html" title="next chapter">Wrapper script</a></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2015, Stephane Martin.
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+  </div>
+  
+  </body>
+</html>

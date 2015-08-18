@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>deescalate.constants &mdash; deescalate documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/readable.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="deescalate documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">
+  
+  
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">deescalate</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for deescalate.constants</h1><div class="highlight"><pre>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;stef&#39;</span>
+
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+
+<div class="viewcode-block" id="C"><a class="viewcode-back" href="../../api.html#deescalate.C">[docs]</a><span class="k">class</span> <span class="nc">C</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gather the various constants used by deescalate.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c">#: List of usual capabilities on Linux</span>
+    <span class="n">HARD_CODED_CAPS</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">b</span><span class="s">&#39;chown&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;dac_override&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;dac_read_search&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;fowner&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;fsetid&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;kill&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;setgid&#39;</span><span class="p">,</span>
+        <span class="n">b</span><span class="s">&#39;setuid&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;setpcap&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;linux_immutable&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;net_bind_service&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;net_broadcast&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;net_admin&#39;</span><span class="p">,</span>
+        <span class="n">b</span><span class="s">&#39;net_raw&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;ipc_lock&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;ipc_owner&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;sys_module&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;sys_rawio&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;sys_chroot&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;sys_ptrace&#39;</span><span class="p">,</span>
+        <span class="n">b</span><span class="s">&#39;sys_pacct&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;sys_admin&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;sys_boot&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;sys_nice&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;sys_resource&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;sys_time&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;sys_tty_config&#39;</span><span class="p">,</span>
+        <span class="n">b</span><span class="s">&#39;mknod&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;lease&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;audit_write&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;audit_control&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;setfcap&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;mac_override&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;mac_admin&#39;</span><span class="p">,</span>
+        <span class="n">b</span><span class="s">&#39;syslog&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;wake_alarm&#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;block_suspend&#39;</span>
+    <span class="p">]</span>
+
+    <span class="c">#: number of caps in HARD_CODED_CAPS</span>
+    <span class="n">NB_HARD_CODED</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">HARD_CODED_CAPS</span><span class="p">)</span>
+
+    <span class="c">#: NOROOT securebit</span>
+    <span class="n">SECBIT_NOROOT</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
+    <span class="c">#: NOROOT_LOCKED securebit</span>
+    <span class="n">SECBIT_NOROOT_LOCKED</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
+    <span class="c">#: NO_SETUID_FIXUP securebit</span>
+    <span class="n">SECBIT_NO_SETUID_FIXUP</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span>
+    <span class="c">#: NO_SETUID_FIXUP_LOCKED securebit</span>
+    <span class="n">SECBIT_NO_SETUID_FIXUP_LOCKED</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">3</span>
+    <span class="c">#: SECBIT_KEEP_CAPS securebit</span>
+    <span class="n">SECBIT_KEEP_CAPS</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">4</span>
+    <span class="c">#: SECBIT_KEEP_CAPS_LOCKED securebit</span>
+    <span class="n">SECBIT_KEEP_CAPS_LOCKED</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span>
+
+    <span class="c">#: capabilities supported by the running platform</span>
+    <span class="n">SUPPORTED_CAPS</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">INVERSE_SUPPORTED_CAPS</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">SUPPORTED_CAPS_NAMES</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="c">#: capabilities not supported by the running platform</span>
+    <span class="n">UNSUPPORTED_CAPS</span> <span class="o">=</span> <span class="p">[]</span> <span class="o">+</span> <span class="n">HARD_CODED_CAPS</span>
+    <span class="n">SUPPORTED_CAPS_VALUES</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="c"># type of capability sets</span>
+    <span class="n">FLAGS</span> <span class="o">=</span> <span class="p">{</span><span class="n">b</span><span class="s">&#39;permitted&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;inheritable&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;effective&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+    <span class="c"># possible values for each capability</span>
+    <span class="n">FLAG_VALUES</span> <span class="o">=</span> <span class="p">{</span><span class="n">b</span><span class="s">&#39;clear&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;set&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+    <span class="n">PRCTL</span> <span class="o">=</span> <span class="p">{}</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../index.html">Table Of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">Deescalate API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../wrapper.html">Wrapper script</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../history.html">History</a></li>
+</ul>
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation index</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2015, Stephane Martin.
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+  </div>
+  
+  </body>
+</html>

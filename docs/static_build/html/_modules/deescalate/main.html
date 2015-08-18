@@ -1,0 +1,418 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>deescalate.main &mdash; deescalate documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/readable.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="deescalate documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">
+  
+  
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">deescalate</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for deescalate.main</h1><div class="highlight"><pre>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;stef&#39;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">platform</span>
+
+<span class="kn">from</span> <span class="nn">._deescalate</span> <span class="kn">import</span> <span class="n">py_prctl</span><span class="p">,</span> <span class="n">C_CapabilitySet</span><span class="p">,</span> <span class="n">C_BoundingSet</span>
+<span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">C</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">normalize_uid</span><span class="p">,</span> <span class="n">normalize_gid</span><span class="p">,</span> <span class="n">normalize_list_of_caps</span><span class="p">,</span> <span class="n">capset_string_to_flag</span>
+
+<span class="n">is_linux</span> <span class="o">=</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;linux&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="CapabilitySet"><a class="viewcode-back" href="../../api.html#deescalate.CapabilitySet">[docs]</a><span class="k">class</span> <span class="nc">CapabilitySet</span><span class="p">(</span><span class="n">C_CapabilitySet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represent a set of capabilities.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - Usually a CapabilitySet is used directly from one of its instance object (effective, permitted, inheritable).</span>
+
+<span class="sd">    - A CapabilitySet is iterable, so to get the capabilities it countains::</span>
+
+<span class="sd">        set(effective)</span>
+
+<span class="sd">    - To check if a capability is in the set::</span>
+
+<span class="sd">        b&#39;net_admin&#39; in effective</span>
+
+<span class="sd">    - Arithmetic operators can be used to add/remove capabilities::</span>
+
+<span class="sd">        effective -= b&#39;net_admin&#39;</span>
+<span class="sd">        permitted += b&#39;net_raw&#39;</span>
+<span class="sd">        inheritable += b&#39;setuid, setgid&#39;</span>
+<span class="sd">        inheritable -= [b&#39;sys_chroot&#39;, b&#39;sys_ptrace&#39;]</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    - `Capabilities manual page &lt;http://man7.org/linux/man-pages/man7/capabilities.7.html&gt;`_</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">instances</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">capset</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">CapabilitySet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">capset</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CapabilitySet.remove_all_except"><a class="viewcode-back" href="../../api.html#deescalate.CapabilitySet.remove_all_except">[docs]</a>    <span class="k">def</span> <span class="nf">remove_all_except</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">caps_to_keep</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove every capability from the set, except the ones given in `caps_to_keep`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        caps_to_keep: bytes or list of bytes</span>
+<span class="sd">            Do not drop these capabilities</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">caps_to_drop</span> <span class="o">=</span> <span class="n">C</span><span class="o">.</span><span class="n">SUPPORTED_CAPS_VALUES</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">normalize_list_of_caps</span><span class="p">(</span><span class="n">caps_to_keep</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__isub__</span><span class="p">(</span><span class="n">caps_to_drop</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">caps</span><span class="p">):</span>
+        <span class="n">caps_to_keep</span> <span class="o">=</span> <span class="n">normalize_list_of_caps</span><span class="p">(</span><span class="n">caps</span><span class="p">)</span>
+        <span class="n">caps_to_clear</span> <span class="o">=</span> <span class="n">C</span><span class="o">.</span><span class="n">SUPPORTED_CAPS_VALUES</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">caps_to_keep</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_modify</span><span class="p">(</span><span class="n">caps_to_keep</span><span class="p">,</span> <span class="n">C</span><span class="o">.</span><span class="n">FLAG_VALUES</span><span class="p">[</span><span class="s">&#39;set&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_modify</span><span class="p">(</span><span class="n">caps_to_clear</span><span class="p">,</span> <span class="n">C</span><span class="o">.</span><span class="n">FLAG_VALUES</span><span class="p">[</span><span class="s">&#39;clear&#39;</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">__iadd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">caps_to_add</span><span class="p">):</span>
+        <span class="n">caps_to_add</span> <span class="o">=</span> <span class="n">normalize_list_of_caps</span><span class="p">(</span><span class="n">caps_to_add</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_modify</span><span class="p">(</span><span class="n">caps_to_add</span><span class="p">,</span> <span class="n">C</span><span class="o">.</span><span class="n">FLAG_VALUES</span><span class="p">[</span><span class="s">&#39;set&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">__isub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">caps_to_drop</span><span class="p">):</span>
+        <span class="n">caps_to_drop</span> <span class="o">=</span> <span class="n">normalize_list_of_caps</span><span class="p">(</span><span class="n">caps_to_drop</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_modify</span><span class="p">(</span><span class="n">caps_to_drop</span><span class="p">,</span> <span class="n">C</span><span class="o">.</span><span class="n">FLAG_VALUES</span><span class="p">[</span><span class="s">&#39;clear&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="CapabilitySet.get_instance"><a class="viewcode-back" href="../../api.html#deescalate.CapabilitySet.get_instance">[docs]</a>    <span class="k">def</span> <span class="nf">get_instance</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">capset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        CapabilitySet factory (class method).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        capset: int or string</span>
+<span class="sd">            which capability set to deal with (&quot;effective&quot;, &quot;permitted&quot; or &quot;inheritable&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">capset</span> <span class="o">=</span> <span class="n">capset_string_to_flag</span><span class="p">(</span><span class="n">capset</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">capset</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">instances</span><span class="p">:</span>
+            <span class="n">cls</span><span class="o">.</span><span class="n">instances</span><span class="p">[</span><span class="n">capset</span><span class="p">]</span> <span class="o">=</span> <span class="n">cls</span><span class="p">(</span><span class="n">capset</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="o">.</span><span class="n">instances</span><span class="p">[</span><span class="n">capset</span><span class="p">]</span>
+
+</div></div>
+<div class="viewcode-block" id="BoundingSet"><a class="viewcode-back" href="../../api.html#deescalate.BoundingSet">[docs]</a><span class="k">class</span> <span class="nc">BoundingSet</span><span class="p">(</span><span class="n">C_BoundingSet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents the bounding capability set.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - BoundindSet is iterable::</span>
+
+<span class="sd">        list_of_caps = list(bounding_set)</span>
+
+<span class="sd">    - To check if a capability is in the bounding set::</span>
+
+<span class="sd">        b&#39;net_admin&#39; in bounding_set</span>
+
+<span class="sd">    - The BoundingSet just supports removing some capabilities it countains. Use::</span>
+
+<span class="sd">        bounding_set -= b&#39;net_admin,mac_override&#39;</span>
+<span class="sd">        bounding_set -= [b&#39;syslog&#39;, b&#39;wake_alarm&#39;]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">instance</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BoundingSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__isub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">caps_to_drop</span><span class="p">):</span>
+        <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_remove_one_cap</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">normalize_list_of_caps</span><span class="p">(</span><span class="n">caps_to_drop</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">remove_all_except</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">caps_to_keep</span><span class="p">):</span>
+        <span class="n">caps_to_drop</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">normalize_list_of_caps</span><span class="p">(</span><span class="n">caps_to_keep</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__isub__</span><span class="p">(</span><span class="n">caps_to_drop</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="BoundingSet.get_instance"><a class="viewcode-back" href="../../api.html#deescalate.BoundingSet.get_instance">[docs]</a>    <span class="k">def</span> <span class="nf">get_instance</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        BoundingSet factory (class method).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">cls</span><span class="o">.</span><span class="n">instance</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">cls</span><span class="o">.</span><span class="n">instance</span> <span class="o">=</span> <span class="n">cls</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="o">.</span><span class="n">instance</span>
+</div></div>
+<span class="n">permitted</span> <span class="o">=</span> <span class="n">CapabilitySet</span><span class="o">.</span><span class="n">get_instance</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">FLAGS</span><span class="p">[</span><span class="s">&#39;permitted&#39;</span><span class="p">])</span>
+<span class="sd">&quot;&quot;&quot;Permitted capability set&quot;&quot;&quot;</span>
+<span class="n">inheritable</span> <span class="o">=</span> <span class="n">CapabilitySet</span><span class="o">.</span><span class="n">get_instance</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">FLAGS</span><span class="p">[</span><span class="s">&#39;inheritable&#39;</span><span class="p">])</span>
+<span class="sd">&quot;&quot;&quot;Inheritable capability set&quot;&quot;&quot;</span>
+<span class="n">effective</span> <span class="o">=</span> <span class="n">CapabilitySet</span><span class="o">.</span><span class="n">get_instance</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">FLAGS</span><span class="p">[</span><span class="s">&#39;effective&#39;</span><span class="p">])</span>
+<span class="sd">&quot;&quot;&quot;Effective capability set&quot;&quot;&quot;</span>
+<span class="n">bounding_set</span> <span class="o">=</span> <span class="n">BoundingSet</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span>
+<span class="sd">&quot;&quot;&quot;Capability bounding set&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="get_securebits"><a class="viewcode-back" href="../../api.html#deescalate.get_securebits">[docs]</a><span class="k">def</span> <span class="nf">get_securebits</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the currently defined secure bits</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    2uple (the securebits as an int, a dict of securebits)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">res</span> <span class="o">=</span> <span class="n">py_prctl</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">PRCTL</span><span class="p">[</span><span class="s">&#39;get_securebits&#39;</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">res</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;get_securebits() failed&quot;</span><span class="p">)</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;SECBIT_NOROOT&#39;</span><span class="p">:</span> <span class="n">res</span> <span class="o">&amp;</span> <span class="n">C</span><span class="o">.</span><span class="n">SECBIT_NOROOT</span><span class="p">,</span>
+        <span class="s">&#39;SECBIT_NOROOT_LOCKED&#39;</span><span class="p">:</span> <span class="n">res</span> <span class="o">&amp;</span> <span class="n">C</span><span class="o">.</span><span class="n">SECBIT_NOROOT_LOCKED</span><span class="p">,</span>
+        <span class="s">&#39;SECBIT_KEEP_CAPS&#39;</span><span class="p">:</span> <span class="n">res</span> <span class="o">&amp;</span> <span class="n">C</span><span class="o">.</span><span class="n">SECBIT_KEEP_CAPS</span><span class="p">,</span>
+        <span class="s">&#39;SECBIT_KEEP_CAPS_LOCKED&#39;</span><span class="p">:</span> <span class="n">res</span> <span class="o">&amp;</span> <span class="n">C</span><span class="o">.</span><span class="n">SECBIT_KEEP_CAPS_LOCKED</span><span class="p">,</span>
+        <span class="s">&#39;SECBIT_NO_SETUID_FIXUP&#39;</span><span class="p">:</span> <span class="n">res</span> <span class="o">&amp;</span> <span class="n">C</span><span class="o">.</span><span class="n">SECBIT_NO_SETUID_FIXUP</span><span class="p">,</span>
+        <span class="s">&#39;SECBIT_NO_SETUID_FIXUP_LOCKED&#39;</span><span class="p">:</span> <span class="n">res</span> <span class="o">&amp;</span> <span class="n">C</span><span class="o">.</span><span class="n">SECBIT_NO_SETUID_FIXUP_LOCKED</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">res</span><span class="p">,</span> <span class="n">d</span>
+
+</div>
+<div class="viewcode-block" id="set_noroot"><a class="viewcode-back" href="../../api.html#deescalate.set_noroot">[docs]</a><span class="k">def</span> <span class="nf">set_noroot</span><span class="p">(</span><span class="n">locked</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set the `SECBIT_NOROOT` securebit.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    locked: bool</span>
+<span class="sd">        if True, also set `SECBIT_NOROOT_LOCKED`</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    RuntimeError</span>
+<span class="sd">        if operation fails</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">current</span> <span class="o">=</span> <span class="n">get_securebits</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">modified</span> <span class="o">=</span> <span class="p">(</span><span class="n">current</span> <span class="o">|</span> <span class="n">C</span><span class="o">.</span><span class="n">SECBIT_NOROOT_LOCKED</span> <span class="o">|</span> <span class="n">C</span><span class="o">.</span><span class="n">SECBIT_NOROOT</span><span class="p">)</span> <span class="k">if</span> <span class="n">locked</span> <span class="k">else</span> <span class="p">(</span><span class="n">current</span> <span class="o">|</span> <span class="n">C</span><span class="o">.</span><span class="n">SECBIT_NOROOT</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">py_prctl</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">PRCTL</span><span class="p">[</span><span class="s">&#39;set_securebits&#39;</span><span class="p">],</span> <span class="n">modified</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">res</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;set_noroot failed&quot;</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="set_keep_caps"><a class="viewcode-back" href="../../api.html#deescalate.set_keep_caps">[docs]</a><span class="k">def</span> <span class="nf">set_keep_caps</span><span class="p">(</span><span class="n">locked</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set the `SECBIT_KEEP_CAPS` securebit.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    locked: bool</span>
+<span class="sd">        if True, also set `SECBIT_KEEP_CAPS_LOCKED`</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    RuntimeError</span>
+<span class="sd">        if operation fails</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">current</span> <span class="o">=</span> <span class="n">get_securebits</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">modified</span> <span class="o">=</span> <span class="p">(</span><span class="n">current</span> <span class="o">|</span> <span class="n">C</span><span class="o">.</span><span class="n">SECBIT_KEEP_CAPS_LOCKED</span> <span class="o">|</span> <span class="n">C</span><span class="o">.</span><span class="n">SECBIT_KEEP_CAPS</span><span class="p">)</span> <span class="k">if</span> <span class="n">locked</span> <span class="k">else</span> <span class="p">(</span><span class="n">current</span> <span class="o">|</span> <span class="n">C</span><span class="o">.</span><span class="n">SECBIT_KEEP_CAPS</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">py_prctl</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">PRCTL</span><span class="p">[</span><span class="s">&#39;set_securebits&#39;</span><span class="p">],</span> <span class="n">modified</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">res</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;set_keep_caps failed&quot;</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="set_no_setuid_fixup"><a class="viewcode-back" href="../../api.html#deescalate.set_no_setuid_fixup">[docs]</a><span class="k">def</span> <span class="nf">set_no_setuid_fixup</span><span class="p">(</span><span class="n">locked</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set the `SECBIT_NO_SETUID_FIXUP` securebit.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    locked: bool</span>
+<span class="sd">        if True, also set `SECBIT_NO_SETUID_FIXUP_LOCKED`</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    RuntimeError</span>
+<span class="sd">        if operation fails</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">current</span> <span class="o">=</span> <span class="n">get_securebits</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">modified</span> <span class="o">=</span> <span class="p">(</span><span class="n">current</span> <span class="o">|</span> <span class="n">C</span><span class="o">.</span><span class="n">SECBIT_NO_SETUID_FIXUP_LOCKED</span> <span class="o">|</span> <span class="n">C</span><span class="o">.</span><span class="n">SECBIT_NO_SETUID_FIXUP</span><span class="p">)</span> <span class="k">if</span> <span class="n">locked</span> \
+        <span class="k">else</span> <span class="p">(</span><span class="n">current</span> <span class="o">|</span> <span class="n">C</span><span class="o">.</span><span class="n">SECBIT_NO_SETUID_FIXUP</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">py_prctl</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">PRCTL</span><span class="p">[</span><span class="s">&#39;set_securebits&#39;</span><span class="p">],</span> <span class="n">modified</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">res</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;set_no_setuid_fixup failed&quot;</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="lockdown_account"><a class="viewcode-back" href="../../api.html#deescalate.lockdown_account">[docs]</a><span class="k">def</span> <span class="nf">lockdown_account</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">gid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">caps_to_keep</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Deescalate the privileges of the running process.</span>
+
+<span class="sd">    `lockdown_account` will:</span>
+
+<span class="sd">    - set the secure bits `noroot`, `keep_caps`, `no_setuid_fixup` and their locked companions</span>
+
+<span class="sd">    - perform a `setgid` and a `setuid`</span>
+
+<span class="sd">    - restrict the 3 cap sets and the bounding set to the list given in `caps_to_keep`</span>
+
+<span class="sd">    - set `no_new_privs`</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    uid: int or string, optional</span>
+<span class="sd">        switch to this UID</span>
+<span class="sd">    gid: int or string, optional</span>
+<span class="sd">        switch to this GID</span>
+<span class="sd">    caps_to_keep: list of bytes, optional</span>
+<span class="sd">        a list of capabilities to keep</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    RuntimeError</span>
+<span class="sd">        if some capability operation fails</span>
+<span class="sd">    OSError</span>
+<span class="sd">        operation not permitted</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    When not on Linux, only setgid and setuid will be performed</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; lockdown_account(&#39;www-data&#39;, &#39;www-data&#39;, &#39;net_bind_service&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; lockdown_account(&#39;scapy&#39;, &#39;scapy&#39;, [&#39;net_admin&#39;, &#39;net_raw&#39;])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">caps_to_keep</span> <span class="o">=</span> <span class="n">normalize_list_of_caps</span><span class="p">(</span><span class="n">caps_to_keep</span><span class="p">)</span>
+    <span class="k">global</span> <span class="n">effective</span><span class="p">,</span> <span class="n">inheritable</span><span class="p">,</span> <span class="n">permitted</span><span class="p">,</span> <span class="n">is_linux</span>
+    <span class="k">if</span> <span class="n">is_linux</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">b</span><span class="s">&quot;setpcap&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">effective</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">b</span><span class="s">&quot;setpcap&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">permitted</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;the current process doesn&#39;t have setpcap cap&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">effective</span> <span class="o">+=</span> <span class="n">b</span><span class="s">&quot;setpcap&quot;</span>
+        <span class="k">if</span> <span class="n">uid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">b</span><span class="s">&#39;setuid&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">effective</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">b</span><span class="s">&#39;setuid&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">permitted</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;the current process doesn&#39;t have setuid cap&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">effective</span> <span class="o">+=</span> <span class="n">b</span><span class="s">&quot;setuid&quot;</span>
+        <span class="k">if</span> <span class="n">gid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">b</span><span class="s">&#39;setgid&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">effective</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">b</span><span class="s">&#39;setgid&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">permitted</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;the current process doesn&#39;t have setgid cap&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">effective</span> <span class="o">+=</span> <span class="n">b</span><span class="s">&quot;setgid&quot;</span>
+
+        <span class="n">set_noroot</span><span class="p">()</span>
+        <span class="n">set_keep_caps</span><span class="p">()</span>
+        <span class="n">set_no_setuid_fixup</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">uid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">setgid</span><span class="p">(</span><span class="n">normalize_gid</span><span class="p">(</span><span class="n">uid</span><span class="p">,</span> <span class="n">gid</span><span class="p">))</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">setuid</span><span class="p">(</span><span class="n">normalize_uid</span><span class="p">(</span><span class="n">uid</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">is_linux</span><span class="p">:</span>
+        <span class="n">capset</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">permitted</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">caps_to_keep</span><span class="p">)</span>
+        <span class="n">effective</span> <span class="o">+=</span> <span class="n">b</span><span class="s">&#39;setpcap&#39;</span>
+
+        <span class="n">bounding_set</span><span class="o">.</span><span class="n">remove_all_except</span><span class="p">(</span><span class="n">capset</span><span class="p">)</span>
+        <span class="n">inheritable</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">capset</span><span class="p">)</span>
+        <span class="n">effective</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">capset</span><span class="p">)</span>
+        <span class="n">permitted</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">capset</span><span class="p">)</span>
+
+        <span class="n">set_no_new_privs</span><span class="p">()</span>
+
+</div>
+<div class="viewcode-block" id="set_no_new_privs"><a class="viewcode-back" href="../../api.html#deescalate.set_no_new_privs">[docs]</a><span class="k">def</span> <span class="nf">set_no_new_privs</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set `no_new_privs`.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - With `no_new_privs` set, `execve` promises not to grant the privilege to do anything that could not have been</span>
+<span class="sd">      done without the `execve` call.</span>
+
+<span class="sd">    - See `prctl manual page &lt;http://man7.org/linux/man-pages/man2/prctl.2.html&gt;`_</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">py_prctl</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">PRCTL</span><span class="p">[</span><span class="s">&#39;set_no_new_privs&#39;</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../index.html">Table Of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">Deescalate API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../wrapper.html">Wrapper script</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../history.html">History</a></li>
+</ul>
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation index</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2015, Stephane Martin.
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+  </div>
+  
+  </body>
+</html>
