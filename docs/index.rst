@@ -9,8 +9,8 @@ deescalate
 .. toctree::
    :maxdepth: 3
 
-   installation
    overview
+   installation
    api
    wrapper
    authors

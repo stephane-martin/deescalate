@@ -24,8 +24,8 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="deescalate documentation" href="index.html" />
-    <link rel="next" title="Deescalate API" href="api.html" />
-    <link rel="prev" title="Installation" href="installation.html" />
+    <link rel="next" title="Installation" href="installation.html" />
+    <link rel="prev" title="deescalate" href="index.html" />
    
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
@@ -41,10 +41,10 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="api.html" title="Deescalate API"
+          <a href="installation.html" title="Installation"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="installation.html" title="Installation"
+          <a href="index.html" title="deescalate"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">deescalate</a> &raquo;</li> 
       </ul>
@@ -57,6 +57,24 @@
             
   <div class="section" id="overview">
 <h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
+<p>Do we really need full root power just to bind a HTTP server to port 80 ?</p>
+<p>On Linux, no. With the capabilities system, a process can be given some special rights even if it's
+not running under root.</p>
+<p>The deescalate module provides a few functions to manipulate capabilities and to drop unneeded rights. This way,
+your python coded server can be ran as root, but drop everything it does not need as soon as it can.</p>
+<p>But dropping capabilities in not the end of the story: if we still run the program as root, some dangerous exploits
+remain: for example, the program will still be able to access files owned by root (think about crontab). More over,
+after an execve, the program could again have access to some dropped capabilities.</p>
+<p>The &quot;securebits&quot; stop this: after setting the securebits, the program won't be able to gain full root rights again.
+Setting a new uid further enhances the protection.</p>
+<p>Finally, since Linux kernel 3.5, a process can set the &quot;no_new_privs&quot; setting to ask the kernel not to ever add some
+rights to the process.</p>
+<p>All these steps are available with a single call to <cite>deescalate</cite> <cite>lockdown_account</cite> function.</p>
+<div class="section" id="note">
+<h2>Note<a class="headerlink" href="#note" title="Permalink to this headline">¶</a></h2>
+<p>The capabilities mechanism just exists on Linux. To ease deployment, <cite>deescalate</cite> will also compile under BSD and
+MacOSX, but of course will not do anything particular. Then <cite>lockdown_account</cite> just performs and setuid and setgid.</p>
+</div>
 </div>
 
 
@@ -67,8 +85,11 @@
         <div class="sphinxsidebarwrapper">
 <h3><a href="index.html">Table Of Contents</a></h3>
 <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#note">Note</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">Deescalate API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="wrapper.html">Wrapper script</a></li>
 <li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
@@ -77,8 +98,8 @@
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation index</a><ul>
-      <li>Previous: <a href="installation.html" title="previous chapter">Installation</a></li>
-      <li>Next: <a href="api.html" title="next chapter">Deescalate API</a></li>
+      <li>Previous: <a href="index.html" title="previous chapter">deescalate</a></li>
+      <li>Next: <a href="installation.html" title="next chapter">Installation</a></li>
   </ul></li>
 </ul>
 <div id="searchbox" style="display: none" role="search">
