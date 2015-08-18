@@ -17,8 +17,10 @@ if __name__ == "__main__":
         sys.stderr.write("\nThis module only works on linux. Just compiling dummy module.\n\n")
         dummy = True
     else:
-        kernel = [int(x) for x in os.uname()[2].split('.')]
-        if kernel < [3, 5]:
+        kernel_version = platform.version()
+        kernel_version = kernel_version.split('-')[0]
+        kernel_version = kernel_version.split('.')
+        if kernel_version < [3, 5]:
             sys.stderr.write("This module requires linux kernel 3.5 or newer\n")
             sys.exit(1)
 
