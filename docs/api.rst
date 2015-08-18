@@ -1,5 +1,5 @@
 ==============
-Deescalate API
+deescalate API
 ==============
 
 Functions
