@@ -10,23 +10,68 @@ from os.path import dirname, abspath, join, commonprefix, exists
 
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 here = abspath(dirname(__file__))
-dummy = False
+
+def check_gcc():
+    try:
+        subprocess.call(['gcc', '-v'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    except OSError:
+        return False
+    return True
+
+def check_prctl():
+    sp = subprocess.Popen(['cpp'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    sp.communicate(b'#include <sys/prctl.h>\n')
+    return sp.returncode == 0
+
+def check_lipcap():
+    sp = subprocess.Popen(['cpp'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    sp.communicate(b'#include <sys/capability.h>\n')
+    return sp.returncode == 0
+
+def get_kernel_version():
+    kernel_version = platform.version()
+    kernel_version = kernel_version.split('-')[0]
+    kernel_version = kernel_version.split('.')
+    return kernel_version
+
+def check_kernel_version():
+    return get_kernel_version() >= [3, 5]
+
+def check_python_version():
+    return sys.version_info[:2] >= (2, 7)
 
 if __name__ == "__main__":
-    if not platform.system().lower().startswith('linux'):
-        sys.stderr.write("\nThis module only works on linux. Just compiling dummy module.\n\n")
-        dummy = True
-    else:
-        kernel_version = platform.version()
-        kernel_version = kernel_version.split('-')[0]
-        kernel_version = kernel_version.split('.')
-        if kernel_version < [3, 5]:
-            sys.stderr.write("This module requires linux kernel 3.5 or newer\n")
-            sys.exit(1)
+    dummy = False
+    # on readthedocs, we don't check prerequisites
+    if not on_rtd:
+        if not platform.system().lower().startswith('linux'):
+            # not linux
+            sys.stderr.write("\nThis module only works on linux. Just compiling dummy module.\n\n")
+            dummy = True
+            if not check_gcc():
+                sys.stderr.write("You need to install gcc to build this module\n")
+                sys.exit(1)
+        else:
+            # linux
+            if not check_kernel_version():
+                # kernel not recent enough
+                sys.stderr.write("This module requires linux kernel 3.5 or newer\n")
+                sys.exit(1)
+            else:
+                # good kernel version
+                if not check_gcc():
+                    sys.stderr.write("You need to install gcc to build this module\n")
+                    sys.exit(1)
+                if not check_prctl():
+                    sys.stderr.write("You need to install libc development headers (eg libc6-dev)")
+                    sys.exit(1)
+                if not check_lipcap():
+                    sys.stderr.write("You need to install libcap development headers (eg libcap-dev)")
+                    sys.exit(1)
 
-    if sys.version_info[:2] < (2, 7):
-        sys.stderr.write("This module requires python 2.7 or newer\n")
-        sys.exit(1)
+        if not check_python_version():
+            sys.stderr.write("This module requires python 2.7 or newer\n")
+            sys.exit(1)
 
     with open('README.rst') as readme_file:
         readme = readme_file.read()
