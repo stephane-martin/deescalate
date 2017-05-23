@@ -29,10 +29,10 @@ def check_lipcap():
     return sp.returncode == 0
 
 def get_kernel_version():
-    kernel_version = platform.version()
+    kernel_version = platform.uname()[2]
     kernel_version = kernel_version.split('-')[0]
     kernel_version = kernel_version.split('.')
-    return kernel_version
+    return [int(i) for i in kernel_version]
 
 def check_kernel_version():
     return get_kernel_version() >= [3, 5]
