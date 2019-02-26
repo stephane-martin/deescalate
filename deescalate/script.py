@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+__author__ = 'stephane.martin_github@vesperal.eu'
+
 import argparse
 import sys
 import pwd

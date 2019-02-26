@@ -11,10 +11,10 @@ on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
 if not on_rtd:
     try:
-        import deescalate._deescalate
+        import deescalate.cd
     except ImportError:
         sys.path.insert(0, os.path.abspath('..'))
-        import deescalate._deescalate
+        import deescalate.cd
 
 import sphinx_readable_theme
 project = u'deescalate'

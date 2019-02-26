@@ -1,5 +1,4 @@
-__author__ = 'stef'
-
+__author__ = 'stephane.martin_github@vesperal.eu'
 
 from .main import lockdown_account
 from .main import get_securebits, set_noroot, set_keep_caps, set_no_setuid_fixup, set_no_new_privs

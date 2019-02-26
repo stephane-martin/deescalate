@@ -1,9 +1,11 @@
-__author__ = 'stef'
+# -*- coding: utf-8 -*-
+
+__author__ = 'stephane.martin_github@vesperal.eu'
 
 import os
 import platform
 
-from ._deescalate import py_prctl, C_CapabilitySet, C_BoundingSet
+from deescalate.cd import py_prctl, C_CapabilitySet, C_BoundingSet
 from .constants import C
 from .utils import normalize_uid, normalize_gid, normalize_list_of_caps, capset_string_to_flag
 
@@ -58,17 +60,17 @@ class CapabilitySet(C_CapabilitySet):
     def set(self, caps):
         caps_to_keep = normalize_list_of_caps(caps)
         caps_to_clear = C.SUPPORTED_CAPS_VALUES.difference(caps_to_keep)
-        self._modify(caps_to_keep, C.FLAG_VALUES['set'])
-        self._modify(caps_to_clear, C.FLAG_VALUES['clear'])
+        self._modify(caps_to_keep, C.FLAG_VALUES[b'set'])
+        self._modify(caps_to_clear, C.FLAG_VALUES[b'clear'])
 
     def __iadd__(self, caps_to_add):
         caps_to_add = normalize_list_of_caps(caps_to_add).difference(set(self))
-        self._modify(caps_to_add, C.FLAG_VALUES['set'])
+        self._modify(caps_to_add, C.FLAG_VALUES[b'set'])
         return self
 
     def __isub__(self, caps_to_drop):
         caps_to_drop = normalize_list_of_caps(caps_to_drop).intersection(set(self))
-        self._modify(caps_to_drop, C.FLAG_VALUES['clear'])
+        self._modify(caps_to_drop, C.FLAG_VALUES[b'clear'])
         return self
 
     @classmethod
@@ -128,11 +130,11 @@ class BoundingSet(C_BoundingSet):
             cls.instance = cls()
         return cls.instance
 
-permitted = CapabilitySet.get_instance(C.FLAGS['permitted'])
+permitted = CapabilitySet.get_instance(C.FLAGS[b'permitted'])
 """Permitted capability set"""
-inheritable = CapabilitySet.get_instance(C.FLAGS['inheritable'])
+inheritable = CapabilitySet.get_instance(C.FLAGS[b'inheritable'])
 """Inheritable capability set"""
-effective = CapabilitySet.get_instance(C.FLAGS['effective'])
+effective = CapabilitySet.get_instance(C.FLAGS[b'effective'])
 """Effective capability set"""
 bounding_set = BoundingSet.get_instance()
 """Capability bounding set"""
@@ -147,7 +149,7 @@ def get_securebits():
     2uple (the securebits as an int, a dict of securebits)
     """
 
-    res = py_prctl(C.PRCTL['get_securebits'], 0, 0, 0, 0)
+    res = py_prctl(C.PRCTL[b'get_securebits'], 0, 0, 0, 0)
     if res == -1:
         raise RuntimeError("get_securebits() failed")
     d = {
@@ -177,7 +179,7 @@ def set_noroot(locked=True):
     """
     current = get_securebits()[0]
     modified = (current | C.SECBIT_NOROOT_LOCKED | C.SECBIT_NOROOT) if locked else (current | C.SECBIT_NOROOT)
-    res = py_prctl(C.PRCTL['set_securebits'], modified, 0, 0, 0)
+    res = py_prctl(C.PRCTL[b'set_securebits'], modified, 0, 0, 0)
     if res == -1:
         raise RuntimeError("set_noroot failed")
 
@@ -198,7 +200,7 @@ def set_keep_caps(locked=True):
     """
     current = get_securebits()[0]
     modified = (current | C.SECBIT_KEEP_CAPS_LOCKED | C.SECBIT_KEEP_CAPS) if locked else (current | C.SECBIT_KEEP_CAPS)
-    res = py_prctl(C.PRCTL['set_securebits'], modified, 0, 0, 0)
+    res = py_prctl(C.PRCTL[b'set_securebits'], modified, 0, 0, 0)
     if res == -1:
         raise RuntimeError("set_keep_caps failed")
 
@@ -220,7 +222,7 @@ def set_no_setuid_fixup(locked=True):
     current = get_securebits()[0]
     modified = (current | C.SECBIT_NO_SETUID_FIXUP_LOCKED | C.SECBIT_NO_SETUID_FIXUP) if locked \
         else (current | C.SECBIT_NO_SETUID_FIXUP)
-    res = py_prctl(C.PRCTL['set_securebits'], modified, 0, 0, 0)
+    res = py_prctl(C.PRCTL[b'set_securebits'], modified, 0, 0, 0)
     if res == -1:
         raise RuntimeError("set_no_setuid_fixup failed")
 
@@ -269,19 +271,19 @@ def lockdown_account(uid=None, gid=None, caps_to_keep=None):
     if is_linux:
         if b"setpcap" not in effective:
             if b"setpcap" not in permitted:
-                raise RuntimeError("the current process doesn't have setpcap cap")
+                raise RuntimeError("the current process doesn't have the setpcap capability")
             else:
                 effective += b"setpcap"
         if uid is not None:
             if b'setuid' not in effective:
                 if b'setuid' not in permitted:
-                    raise RuntimeError("the current process doesn't have setuid cap")
+                    raise RuntimeError("the current process doesn't have the setuid capability")
                 else:
                     effective += b"setuid"
         if gid is not None:
             if b'setgid' not in effective:
                 if b'setgid' not in permitted:
-                    raise RuntimeError("the current process doesn't have setgid cap")
+                    raise RuntimeError("the current process doesn't have the setgid capability")
                 else:
                     effective += b"setgid"
 
@@ -316,4 +318,4 @@ def set_no_new_privs():
 
     - See `prctl manual page <http://man7.org/linux/man-pages/man2/prctl.2.html>`_
     """
-    py_prctl(C.PRCTL['set_no_new_privs'], 1, 0, 0, 0)
+    py_prctl(C.PRCTL[b'set_no_new_privs'], 1, 0, 0, 0)

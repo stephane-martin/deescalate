@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 from libc.stdlib cimport malloc, free
 from .constants import C
 from .utils import capset_string_to_flag

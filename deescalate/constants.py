@@ -1,7 +1,6 @@
-__author__ = 'stef'
-
 # -*- coding: utf-8 -*-
 
+__author__ = 'stephane.martin_github@vesperal.eu'
 
 class C(object):
     """

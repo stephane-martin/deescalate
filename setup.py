@@ -90,8 +90,8 @@ if __name__ == "__main__":
     extensions = []
     if not on_rtd:
         deescalate_extension = Extension(
-            name="deescalate._deescalate",
-            sources=["deescalate/_deescalate.pyx"],
+            name="deescalate.cd",
+            sources=["deescalate/cd.pyx"],
             libraries=["cap"] if not dummy else []
         )
         extensions.append(deescalate_extension)
@@ -100,7 +100,7 @@ if __name__ == "__main__":
 
     setup(
         name='deescalate',
-        version='0.1',
+        version='0.1.2',
         description='using linux capabilities to drop privileges in python',
         long_description=readme + '\n\n' + history,
         author='Stephane Martin',
@@ -108,7 +108,7 @@ if __name__ == "__main__":
         url='https://github.com/stephane-martin/deescalate',
         packages=find_packages(exclude=['tests']),
         setup_requires=[
-            'setuptools_git', 'setuptools', 'twine', 'wheel', 'cython'
+            'setuptools_git', 'setuptools', 'twine', 'wheel', 'Cython'
         ],
         include_package_data=True,
         exclude_package_data={'': ['*.c', '*.cpp', '*.h', '*.html', '*.txt']},
@@ -136,5 +136,4 @@ if __name__ == "__main__":
         test_suite='tests',
         tests_require=test_requirements,
         ext_modules=extensions
-
     )

@@ -1,11 +1,20 @@
 # -*- coding: utf-8 -*-
 
-__author__ = 'stef'
+__author__ = 'stephane.martin_github@vesperal.eu'
 
 import pwd
 import grp
-from constants import C
+from .constants import C
 
+try:
+    basestring
+except NameError:
+    basestring = str
+
+try:
+    unicode
+except NameError:
+    unicode = str
 
 def normalize_list_of_caps(list_of_caps):
     if list_of_caps is None:
